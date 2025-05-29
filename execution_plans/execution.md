@@ -1,5 +1,5 @@
 # explain and explain analyze
-![original query](execution_plans/original_query)
+![original query](execution_plans/original_query.png)
 
 -> Sort: total_spent DESC  (actual time=0.574..0.574 rows=1 loops=1)
     -> Filter: (total_spent > 500)  (actual time=0.543..0.556 rows=1 loops=1)
@@ -25,7 +25,7 @@
             -> Table scan on p  (cost=1.25 rows=10) (actual time=0.0171..0.0429 rows=10 loops=1)
 
 
-![step 1](execution_plans/step1)
+![step 1](execution_plans/step1.png)
 
 -> Sort: total_spent DESC  (actual time=1.02..1.02 rows=1 loops=1)
     -> Filter: (total_spent > 500)  (actual time=0.824..0.842 rows=1 loops=1)
@@ -50,7 +50,7 @@
                                                 -> Table scan on order_items  (cost=1.35 rows=11) (actual time=0.0152..0.0468 rows=11 loops=1)
 
 
-![step 2](execution_plans/step2)
+![step 2](execution_plans/step2.png)
 
 -> Sort: total_spent DESC  (actual time=0.374..0.374 rows=1 loops=1)
     -> Filter: (total_spent > 500)  (actual time=0.327..0.34 rows=1 loops=1)
@@ -73,7 +73,7 @@
                             -> Index lookup on order_items using idx_order_items_order_id_quantity (order_id=orders_with_large_items.order_id)  (cost=0.428 rows=1.22) (actual time=0.0095..0.0157 rows=1.33 loops=3)
 
 
-![step 3](execution_plans/step3)
+![step 3](execution_plans/step3.png)
 
 -> Sort: total_spent DESC  (actual time=0.55..0.55 rows=1 loops=1)
     -> Filter: (total_spent > 500)  (actual time=0.509..0.524 rows=1 loops=1)
