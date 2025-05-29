@@ -25,7 +25,7 @@
             -> Table scan on p  (cost=1.25 rows=10) (actual time=0.0171..0.0429 rows=10 loops=1)
 
 
-![step 1](/step1.png)
+![step 1](step1.png)
 
 -> Sort: total_spent DESC  (actual time=1.02..1.02 rows=1 loops=1)
     -> Filter: (total_spent > 500)  (actual time=0.824..0.842 rows=1 loops=1)
