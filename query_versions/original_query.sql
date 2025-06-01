@@ -1,6 +1,6 @@
 use assignment2;
 
-explain analyze
+explain
 SELECT 
     u.name AS customer_name,
     u.email,
@@ -22,25 +22,27 @@ GROUP BY u.user_id, u.name, u.email
 HAVING total_spent > 500
 ORDER BY total_spent DESC;
 
--- -> Sort: total_spent DESC  (actual time=0.574..0.574 rows=1 loops=1)
---     -> Filter: (total_spent > 500)  (actual time=0.543..0.556 rows=1 loops=1)
---         -> Stream results  (actual time=0.54..0.551 rows=3 loops=1)
---             -> Group aggregate: count(distinct orders.order_id), sum(tmp_field)  (actual time=0.531..0.538 rows=3 loops=1)
---                 -> Sort: u.user_id, u.`name`, u.email  (actual time=0.507..0.509 rows=4 loops=1)
---                     -> Stream results  (cost=2.68 rows=0.3) (actual time=0.407..0.464 rows=4 loops=1)
---                         -> Inner hash join (oi.order_id = o.order_id)  (cost=2.68 rows=0.3) (actual time=0.384..0.429 rows=4 loops=1)
---                             -> Table scan on oi  (cost=0.121 rows=11) (actual time=0.0175..0.0531 rows=11 loops=1)
+-- -> Sort: total_spent DESC  (actual time=2675..2676 rows=9502 loops=1)
+--     -> Filter: (total_spent > 500)  (actual time=2489..2663 rows=9502 loops=1)
+--         -> Stream results  (actual time=2489..2661 rows=9505 loops=1)
+--             -> Group aggregate: count(distinct orders.order_id), sum(tmp_field)  (actual time=2489..2654 rows=9505 loops=1)
+--                 -> Sort: u.user_id, u.`name`, u.email  (actual time=2489..2517 rows=166254 loops=1)
+--                     -> Stream results  (cost=9.01e+15 rows=9.01e+15) (actual time=1006..2203 rows=166254 loops=1)
+--                         -> Inner hash join (oi.order_id = o.order_id)  (cost=9.01e+15 rows=9.01e+15) (actual time=1006..2074 rows=166254 loops=1)
+--                             -> Table scan on oi  (cost=1.24 rows=498780) (actual time=0.0441..598 rows=500011 loops=1)
 --                             -> Hash
---                                 -> Inner hash join (u.user_id = o.user_id)  (cost=2.12 rows=0.273) (actual time=0.274..0.321 rows=3 loops=1)
---                                     -> Table scan on u  (cost=0.117 rows=8) (actual time=0.0232..0.0603 rows=8 loops=1)
---                                     -> Hash
---                                         -> Hash semijoin (order_items.order_id = o.order_id)  (cost=1.66 rows=0.273) (actual time=0.165..0.219 rows=3 loops=1)
---                                             -> Filter: (o.order_date >= DATE'2024-01-01')  (cost=1.15 rows=3) (actual time=0.0189..0.0642 rows=9 loops=1)
---                                                 -> Table scan on o  (cost=1.15 rows=9) (actual time=0.0156..0.0537 rows=9 loops=1)
---                                             -> Hash
---                                                 -> Filter: (order_items.quantity >= 5)  (cost=0.364 rows=1) (actual time=0.0789..0.106 rows=3 loops=1)
---                                                     -> Table scan on order_items  (cost=0.364 rows=11) (actual time=0.063..0.0984 rows=11 loops=1)
+--                                 -> Nested loop inner join  (cost=18.1e+9 rows=181e+9) (actual time=662..903 rows=29735 loops=1)
+--                                     -> Inner hash join (o.user_id = u.user_id)  (cost=3.47e+6 rows=1.09e+6) (actual time=25.5..216 rows=47108 loops=1)
+--                                         -> Filter: ((o.order_date >= DATE'2024-01-01') and (o.order_id is not null))  (cost=21.2 rows=3291) (actual time=0.0373..144 rows=47059 loops=1)
+--                                             -> Table scan on o  (cost=21.2 rows=98749) (actual time=0.0328..121 rows=100009 loops=1)
+--                                         -> Hash
+--                                             -> Table scan on u  (cost=1015 rows=9910) (actual time=0.042..15.4 rows=10008 loops=1)
+--                                     -> Single-row index lookup on <subquery3> using <auto_distinct_key> (order_id=o.order_id)  (cost=66895..66895 rows=1) (actual time=0.0144..0.0144 rows=0.631 loops=47108)
+--                                         -> Materialize with deduplication  (cost=66895..66895 rows=166243) (actual time=637..637 rows=62961 loops=1)
+--                                             -> Filter: (order_items.order_id is not null)  (cost=50271 rows=166243) (actual time=0.017..567 rows=99546 loops=1)
+--                                                 -> Filter: (order_items.quantity >= 5)  (cost=50271 rows=166243) (actual time=0.0162..556 rows=99546 loops=1)
+--                                                     -> Table scan on order_items  (cost=50271 rows=498780) (actual time=0.0115..485 rows=500011 loops=1)
 -- -> Select #2 (subquery in projection; run only once)
---     -> Aggregate: count(0)  (cost=1.58 rows=1) (actual time=0.0522..0.0523 rows=1 loops=1)
---         -> Filter: (p.stock < 10)  (cost=1.25 rows=3.33) (actual time=0.0187..0.0483 rows=6 loops=1)
---             -> Table scan on p  (cost=1.25 rows=10) (actual time=0.0171..0.0429 rows=10 loops=1)
+--     -> Aggregate: count(0)  (cost=6582 rows=1) (actual time=47.9..47.9 rows=1 loops=1)
+--         -> Filter: (p.stock < 10)  (cost=4951 rows=16313) (actual time=0.0458..47.8 rows=526 loops=1)
+--             -> Table scan on p  (cost=4951 rows=48943) (actual time=0.0438..41.6 rows=50010 loops=1)

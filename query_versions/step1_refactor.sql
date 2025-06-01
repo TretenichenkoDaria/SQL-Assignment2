@@ -1,6 +1,6 @@
 use assignment2;
 
-explain analyze
+explain
 with orders_with_large_items as (
     select distinct order_id 
     from order_items 
@@ -28,24 +28,24 @@ having total_spent > 500
 order by total_spent desc;
 
 
--- -> Sort: total_spent DESC  (actual time=1.02..1.02 rows=1 loops=1)
---     -> Filter: (total_spent > 500)  (actual time=0.824..0.842 rows=1 loops=1)
---         -> Stream results  (actual time=0.821..0.836 rows=3 loops=1)
---             -> Group aggregate: count(distinct orders.order_id), sum(tmp_field)  (actual time=0.813..0.822 rows=3 loops=1)
---                 -> Sort: users.user_id, users.`name`, users.email  (actual time=0.791..0.792 rows=4 loops=1)
---                     -> Stream results  (cost=10.2 rows=12.1) (actual time=0.543..0.664 rows=4 loops=1)
---                         -> Nested loop inner join  (cost=10.2 rows=12.1) (actual time=0.532..0.639 rows=4 loops=1)
---                             -> Inner hash join (order_items.order_id = orders.order_id)  (cost=7.35 rows=3.3) (actual time=0.409..0.48 rows=11 loops=1)
---                                 -> Table scan on order_items  (cost=0.121 rows=11) (actual time=0.0296..0.0832 rows=11 loops=1)
+-- -> Sort: total_spent DESC  (actual time=3253..3255 rows=9502 loops=1)
+--     -> Filter: (total_spent > 500)  (actual time=3067..3241 rows=9502 loops=1)
+--         -> Stream results  (actual time=3067..3239 rows=9505 loops=1)
+--             -> Group aggregate: count(distinct orders.order_id), sum(tmp_field)  (actual time=3067..3231 rows=9505 loops=1)
+--                 -> Sort: users.user_id, users.`name`, users.email  (actual time=3067..3095 rows=166254 loops=1)
+--                     -> Stream results  (cost=906e+12 rows=9.01e+15) (actual time=983..2757 rows=166254 loops=1)
+--                         -> Nested loop inner join  (cost=906e+12 rows=9.01e+15) (actual time=983..2587 rows=166254 loops=1)
+--                             -> Inner hash join (order_items.order_id = orders.order_id)  (cost=54.3e+9 rows=54.2e+9) (actual time=303..1450 rows=235899 loops=1)
+--                                 -> Table scan on order_items  (cost=1.23 rows=498780) (actual time=0.043..630 rows=500011 loops=1)
 --                                 -> Hash
---                                     -> Inner hash join (users.user_id = orders.user_id)  (cost=3.8 rows=3) (actual time=0.229..0.271 rows=9 loops=1)
---                                         -> Table scan on users  (cost=0.117 rows=8) (actual time=0.0188..0.0504 rows=8 loops=1)
+--                                     -> Inner hash join (orders.user_id = users.user_id)  (cost=3.47e+6 rows=1.09e+6) (actual time=24.5..211 rows=47108 loops=1)
+--                                         -> Filter: ((orders.order_date >= DATE'2024-01-01') and (orders.order_id is not null))  (cost=21.2 rows=3291) (actual time=0.0434..140 rows=47059 loops=1)
+--                                             -> Table scan on orders  (cost=21.2 rows=98749) (actual time=0.0383..118 rows=100009 loops=1)
 --                                         -> Hash
---                                             -> Filter: ((orders.order_date >= DATE'2024-01-01') and (orders.order_id is not null))  (cost=1.15 rows=3) (actual time=0.0394..0.0856 rows=9 loops=1)
---                                                 -> Table scan on orders  (cost=1.15 rows=9) (actual time=0.0361..0.0742 rows=9 loops=1)
---                             -> Covering index lookup on orders_with_large_items using <auto_key0> (order_id=orders.order_id)  (cost=4.9..5.18 rows=2) (actual time=0.0129..0.0133 rows=0.364 loops=11)
---                                 -> Materialize CTE orders_with_large_items  (cost=4.62..4.62 rows=3.67) (actual time=0.114..0.114 rows=3 loops=1)
---                                     -> Table scan on <temporary>  (cost=2.41..4.25 rows=3.67) (actual time=0.0889..0.09 rows=3 loops=1)
---                                         -> Temporary table with deduplication  (cost=1.72..1.72 rows=3.67) (actual time=0.0873..0.0873 rows=3 loops=1)
---                                             -> Filter: (order_items.quantity >= 5)  (cost=1.35 rows=3.67) (actual time=0.0214..0.0525 rows=3 loops=1)
---                                                 -> Table scan on order_items  (cost=1.35 rows=11) (actual time=0.0152..0.0468 rows=11 loops=1)
+--                                             -> Table scan on users  (cost=1015 rows=9910) (actual time=0.0351..15.6 rows=10008 loops=1)
+--                             -> Covering index lookup on orders_with_large_items using <auto_key0> (order_id=orders.order_id)  (cost=85600..85603 rows=10) (actual time=0.00435..0.00455 rows=0.705 loops=235899)
+--                                 -> Materialize CTE orders_with_large_items  (cost=85600..85600 rows=166243) (actual time=680..680 rows=62961 loops=1)
+--                                     -> Table scan on <temporary>  (cost=66895..68976 rows=166243) (actual time=612..618 rows=62961 loops=1)
+--                                         -> Temporary table with deduplication  (cost=66895..66895 rows=166243) (actual time=611..611 rows=62961 loops=1)
+--                                             -> Filter: (order_items.quantity >= 5)  (cost=50271 rows=166243) (actual time=0.0198..542 rows=99546 loops=1)
+--                                                 -> Table scan on order_items  (cost=50271 rows=498780) (actual time=0.0118..473 rows=500011 loops=1)
